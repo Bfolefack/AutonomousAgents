@@ -16,8 +16,8 @@ PVector[][] flowField;
 void setup () {
   size(1300, 700);
   gridScale = 50;
-  gridWidth = 150;
-  gridHeight= 150;
+  gridWidth = 100;
+  gridHeight= 100;
   griddle = new Grid(0, 0, gridWidth, gridHeight);
   xPan = width/2;
   yPan = height/2;
