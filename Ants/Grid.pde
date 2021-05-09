@@ -4,6 +4,7 @@ class Grid {
   int gridWidth;
   int gridHeight;
   float gridScale;
+  ArrayList<ArrayList<Cell>> caverns;
   Grid(int gW, int gH, float gS, float d, float sc){
     gridWidth = gW;
     gridHeight = gH;
@@ -11,7 +12,7 @@ class Grid {
     grid = new Cell[gridWidth][gridHeight];
     for(int i = 0; i < gridWidth; i++){
       for(int j = 0; j < gridHeight; j++){
-        if(noise(i * sc, j * sc, (i + j) * sc * 0.5) < d){
+        if(noise(i * sc, j * sc, (i * sc * 0.5 + j * sc * 0.5)) < d){
           grid[i][j] = new Cell(i, j, gridScale, true);
         } else {
           grid[i][j] = new Cell(i, j, gridScale, false);
@@ -19,6 +20,27 @@ class Grid {
       }
     }
     buildCave();
+    caverns = new ArrayList<ArrayList<Cell>>();
+    for(int i = 0; i < gridWidth; i++){
+      for(int j = 0; j < gridHeight; j++){
+        if(!grid[i][j].filled && grid[i][j].cavernID == 0){
+          floodFill(i, j);
+        }
+      }
+    }
+    ArrayList<Cell> biggest = new ArrayList<Cell>();
+    for(int i = 0; i < caverns.size(); i++){
+      if(caverns.get(i).size() > biggest.size()){
+        biggest = caverns.get(i);
+      }
+    }
+    for(int i = 0; i < caverns.size(); i++){
+      if(caverns.get(i) != biggest){
+        for(Cell c:  caverns.get(i)){
+          c.filled = true;
+        }
+      }
+    }
   }
   
   void display(){
@@ -29,6 +51,23 @@ class Grid {
     }
   }
   
+  void floodFill(int x, int y){
+    ArrayList<Cell> active = new ArrayList<Cell>();
+    ArrayList<Cell> nextActive = new ArrayList<Cell>();
+    ArrayList<Cell> cavern = new ArrayList<Cell>();
+    int id = (int) random(1, Integer.MAX_VALUE);
+    active.add(getCell(x, y));
+    while(active.size() > 0){
+      nextActive = new ArrayList<Cell>();
+      for(Cell c: active){
+        c.floodFill(this, nextActive, id);
+        cavern.add(c);
+      }
+      active = (ArrayList) nextActive.clone();
+    }
+    caverns.add(cavern);
+  }
+  
   void buildCave(){
     Random randy = new Random(seed);
     ArrayList<Cell> tempCells = new ArrayList<Cell>();
@@ -37,7 +76,7 @@ class Grid {
         tempCells.add(grid[i][j]);
       }
     }
-    Collections.shuffle(tempCells);
+    Collections.shuffle(tempCells, randy);
     for(int i = 0; i < 50; i++){
       println(i);
       for(Cell c : tempCells){

@@ -52,9 +52,9 @@ class Cell {
   void display() {
     PVector maus = getMouseGridspace();
     //println(gridPos); 
-    if (mouseInside()) {
-      println(vector);
-    }
+    //if (mouseInside()) {
+    //  println(vector);
+    //}
 
     if (impassable /* || cost > 65534*/) {
       fill(50, 25, 0);
@@ -68,18 +68,18 @@ class Cell {
       fill(100, 50, 0);
     }
     rect(gridPos.x * gridScale, gridPos.y * gridScale, gridScale, gridScale);
-    fill(255);
-    textSize(10);
-    if (cost < 65535) {
-      text(cost, gridPos.x * gridScale + 10, gridPos.y * gridScale + 10);
-    } else {
-      text("MAX", gridPos.x * gridScale + 10, gridPos.y * gridScale + 10);
-    }
-    fill(0);
-    rect(gridPos.x * gridScale + gridScale/2 - 1, gridPos.y * gridScale + gridScale/2 - 1, 2, 2);
-    if (leastIndex != 8) {
-      line(gridPos.x * gridScale + gridScale/2, gridPos.y * gridScale + gridScale/2, gridPos.x * gridScale + gridScale/2 + vector.x * 25, gridPos.y * gridScale + gridScale/2 + vector.y * 25);
-    }
+    //fill(255);
+    //textSize(10);
+    //if (cost < 65535) {
+    //  text(cost, gridPos.x * gridScale + 10, gridPos.y * gridScale + 10);
+    //} else {
+    //  text("MAX", gridPos.x * gridScale + 10, gridPos.y * gridScale + 10);
+    //}
+    //fill(0);
+    //rect(gridPos.x * gridScale + gridScale/2 - 1, gridPos.y * gridScale + gridScale/2 - 1, 2, 2);
+    //if (leastIndex != 8) {
+    //  line(gridPos.x * gridScale + gridScale/2, gridPos.y * gridScale + gridScale/2, gridPos.x * gridScale + gridScale/2 + vector.x * 25, gridPos.y * gridScale + gridScale/2 + vector.y * 25);
+    //}
   }
 
   //****************************************************************************************************

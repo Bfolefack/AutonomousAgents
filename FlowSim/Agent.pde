@@ -101,7 +101,7 @@ class Agent {
     fill(255, 0, 255);
     ellipse(pos.x, pos.y, 15, 15);
     fill(0);
-    stroke(0);
+    //stroke(0);
     
   }
 

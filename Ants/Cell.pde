@@ -3,11 +3,13 @@ class Cell {
   int xPos;
   int yPos;
   float scale;
+  int cavernID;
   Cell(int x, int y, float s, boolean b) {
     xPos = x;
     yPos = y;
     scale = s;
     filled = b;
+    cavernID = 0;
   }
 
   void buildCave(Grid grid) {
@@ -59,5 +61,23 @@ class Cell {
       fill(255);
     }
     rect(xPos * scale, yPos * scale, scale, scale);
+  }
+
+  void floodFill(Grid grid, ArrayList<Cell> cels, int id) {
+    if (cavernID == 0 && !filled){
+      cavernID = id;
+      for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+          if (abs(i) + abs(j)  == 1) {
+            Cell cel = grid.getCell(xPos + i, yPos + j);
+            if (cel != null) {
+              if (cel.cavernID == 0 && !cel.filled) {
+                cels.add(cel);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
