@@ -4,6 +4,7 @@ class Cell {
   int yPos;
   float scale;
   int cavernID;
+  color currColor;
   Cell(int x, int y, float s, boolean b) {
     xPos = x;
     yPos = y;
@@ -55,16 +56,17 @@ class Cell {
   }
 
   void display() {
-    if (filled) {
-      fill(0);
-    } else {
-      fill(255);
-    }
+    fill (currColor);
     rect(xPos * scale, yPos * scale, scale, scale);
+    if (filled) {
+      currColor = color(0);
+    } else {
+      currColor = color(255);
+    }
   }
 
   void floodFill(Grid grid, ArrayList<Cell> cels, int id) {
-    if (cavernID == 0 && !filled){
+    if (cavernID == 0 && !filled) {
       cavernID = id;
       for (int i = -1; i < 2; i++) {
         for (int j = -1; j < 2; j++) {

@@ -1,6 +1,7 @@
 import java.util.*;
 class Grid {
   Cell[][] grid;
+  Chunk[][] chunks;
   int gridWidth;
   int gridHeight;
   float gridScale;
@@ -41,12 +42,23 @@ class Grid {
         }
       }
     }
+    chunks = new Chunk[gridWidth/20][gridHeight/20];
+    for(int i = 0; i < gridWidth/20; i++){
+      for(int j = 0; j < gridHeight/20; j++){
+        chunks[i][j] = new Chunk();
+      }
+    }
   }
   
   void display(){
     for(int i = 0; i < gridWidth; i++){
       for(int j = 0; j < gridHeight; j++){
         grid[i][j].display();
+      }
+    }
+    for(int i = 0; i < gridWidth/20; i++){
+      for(int j = 0; j < gridHeight/20; j++){
+        chunks[i][j].clear();
       }
     }
   }

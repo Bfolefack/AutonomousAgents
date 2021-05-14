@@ -3,6 +3,7 @@ ArrayList<Ant> ants;
 float truMouseX;
 float truMouseY;
 int seed = 0;
+int globalIndex = 0;
 Grid farm;
 void setup(){
   noiseDetail(4 , 0.5);
@@ -27,6 +28,9 @@ void draw(){
   zoomer.pushZoom();
   zoomer.mousePan();
   farm.display();
+  for(Ant a : ants){
+    a.setChunk(farm);
+  }
   for(Ant a : ants){
     a.update(farm);
     a.display();
