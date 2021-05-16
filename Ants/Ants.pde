@@ -5,10 +5,10 @@ float truMouseY;
 int seed = 0;
 int globalIndex = 0;
 Grid farm;
-void setup(){
-  noiseDetail(4 , 0.5);
-  if(seed == 0){
-    seed = (int)random(Integer.MIN_VALUE,Integer.MAX_VALUE);
+void setup() {
+  noiseDetail(4, 0.5);
+  if (seed == 0) {
+    seed = (int)random(Integer.MIN_VALUE, Integer.MAX_VALUE);
   }
   ants = new ArrayList<Ant>();
   randomSeed(seed);
@@ -20,24 +20,28 @@ void setup(){
 }
 
 
-void draw(){
+void draw() {
   background(155);
-  if(keyPressed && key == 'w'){
-    ants.add(new Ant(farm, truMouseX, truMouseY, 10, 0.9));
+  if (keyPressed && key == 'w') {
+    ants.add(new Ant(farm, truMouseX, truMouseY, 15, 0.9));
+  }
+  if (keyPressed && key == 'a') {
+    for (int i = 0; i < 50; i++)
+      ants.add(new Ant(farm, truMouseX, truMouseY, 15, 0.9));
   }
   zoomer.pushZoom();
   zoomer.mousePan();
   farm.display();
-  for(Ant a : ants){
-    a.setChunk(farm);
+  for (int i = ants.size() - 1; i >= 0; i--) {
+    ants.get(i).setChunk(farm);
   }
-  for(Ant a : ants){
+  for (Ant a : ants) {
     a.update(farm);
     a.display();
   }
   zoomer.popZoom();
 }
 
-void mouseWheel(MouseEvent event){
+void mouseWheel(MouseEvent event) {
   zoomer.mouseScale(event, 0.1);
 }

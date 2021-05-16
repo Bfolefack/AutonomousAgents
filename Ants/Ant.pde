@@ -22,7 +22,9 @@ class Ant {
   }
 
   void update(Grid grid) {
-    float randyRad = random(-PI, PI);
+    layPheremones(grid);
+    getSights(grid);
+    float randyRad = random(-TWO_PI, TWO_PI);
     PVector draw =  new PVector(cos(randyRad), sin(randyRad));
     e.add(draw);
     e.setMag(maxSpeed/4);
@@ -31,9 +33,9 @@ class Ant {
     //addForce(seek(new PVector(truMouseX, truMouseY)));
     addForce(seek(PVector.add(randy, pos)));
     PVector avy = avoidWalls(grid);
-    addForce(avy.mult(5));
-    addForce(avoidNeighbors(grid));
-    randy.add(avy.setMag(r * 20));
+    addForce(avy.mult(10));
+    //addForce(avoidNeighbors(grid));
+    randy.add(avy.setMag(r * 10));
     vel.add(acc);
     vel.limit(maxSpeed);
     vel.mult(0.95);
@@ -159,6 +161,30 @@ class Ant {
       sum = new PVector(0, 0);
     return sum.limit(maxForce);
   }
+  
+  void layPheremones(Grid grid){
+    int xPos = (int) (pos.x/20);
+    int yPos = (int) (pos.y/20);
+    Cell cel = grid.getCell(xPos, yPos);
+    cel.homePheremone += 0.05;
+  }
+  
+  void getSights(Grid grid){
+    int xPos = (int) (pos.x/20);
+    int yPos = (int) (pos.y/20);
+    for(int i = (int) -r; i < r + 1; i++){
+      for(int j = (int)  -r; j < r + 1; j++){
+        Cell cel = grid.getCell(xPos + i, yPos + j);
+        if(cel  != null){
+          if(dist(xPos, yPos, (xPos + i), (yPos + j)) < r){
+            if(PVector.angleBetween(vel, new PVector(i, j)) < PI/3){
+             //cel.currColor = color(255 ,0, 0);
+            }
+          }
+        }
+      }
+    }
+  }
 
   void addForce(PVector force) {
     acc.add(force);
@@ -167,7 +193,11 @@ class Ant {
   void setChunk(Grid grid) {
     int xPos = (int) (pos.x/20)/20;
     int yPos = (int) (pos.y/20)/20;
-    grid.chunks[xPos][yPos].ants.add(this);
+    try{
+      grid.chunks[xPos][yPos].ants.add(this);
+    } catch (Exception e){
+      ants.remove(this);
+    }
   }
 
   void seek(float _t1, float _t2) {
