@@ -1,9 +1,11 @@
 class Cell {
-  boolean filled, food;
+  boolean filled, nest;
   int xPos;
   int yPos;
   float scale;
   float homePheremone;
+  float foodPheremone;
+  float food;
   int cavernID;
   color currColor;
   Cell(int x, int y, float s, boolean b) {
@@ -59,17 +61,24 @@ class Cell {
   void display() {
     fill (currColor);
     homePheremone *= 0.99;
+    foodPheremone *= 0.99;
+    if (homePheremone > 1)
+      homePheremone = 1;
+    if (foodPheremone > 1)
+      foodPheremone = 1;
     rect(xPos * scale, yPos * scale, scale, scale);
     if (filled) {
       currColor = color(0);
+      foodPheremone = 0;
+      homePheremone = 0;
     } else {
-      if (homePheremone > 1) {
-        homePheremone = 1;
+      currColor = color((255 - homePheremone * 255 + 255)/2, ((255 - homePheremone * 255) + (255 - foodPheremone * 255))/2, (255 + (255 - foodPheremone * 255))/2);
+      if (food > 0) {
+        currColor = color(255 - food * 255, 255, 255 - food * 255);
       }
-      currColor = color(255 - homePheremone * 255, 255 - homePheremone * 255, 255);
-      if (food) {
-        currColor = color(0, 255, 0);
-      } 
+      if (nest) {
+        currColor = color(200, 0, 255);
+      }
     }
   }
 

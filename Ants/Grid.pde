@@ -17,8 +17,8 @@ class Grid {
           grid[i][j] = new Cell(i, j, gridScale, true);
         } else {
           grid[i][j] = new Cell(i, j, gridScale, false);
-          if (noise(i * sc, j * sc, (i * sc * 0.5 + j * sc * 0.5)) > 0.67) {
-            grid[i][j].food = true;
+          if (noise(i * sc, j * sc, (i * sc * 0.5 + j * sc * 0.5)) > 0.7) {
+            grid[i][j].food = 1;
           }
         }
       }
