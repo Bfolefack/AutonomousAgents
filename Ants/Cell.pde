@@ -59,14 +59,14 @@ class Cell {
   }
 
   void display() {
-    fill (currColor);
-    homePheremone *= 0.99;
-    foodPheremone *= 0.99;
+    //fill (currColor);
+    homePheremone *= 0.98;
+    foodPheremone *= 0.98;
     if (homePheremone > 1)
       homePheremone = 1;
     if (foodPheremone > 1)
       foodPheremone = 1;
-    rect(xPos * scale, yPos * scale, scale, scale);
+    //rect(xPos * scale, yPos * scale, scale, scale);
     if (filled) {
       currColor = color(0);
       foodPheremone = 0;

@@ -1,14 +1,17 @@
 import java.util.*;
 class Grid {
   Cell[][] grid;
-  Chunk[][] chunks;
+  //Chunk[][] chunks;
   int gridWidth;
   int gridHeight;
   float gridScale;
+  PImage map;
   ArrayList<ArrayList<Cell>> caverns;
   Grid(int gW, int gH, float gS, float d, float sc) {
     gridWidth = gW;
     gridHeight = gH;
+    map = createImage(gridWidth, gridHeight, RGB);
+    map.loadPixels();
     gridScale = gS;
     grid = new Cell[gridWidth][gridHeight];
     for (int i = 0; i < gridWidth; i++) {
@@ -45,25 +48,40 @@ class Grid {
         }
       }
     }
-    chunks = new Chunk[gridWidth/20][gridHeight/20];
-    for (int i = 0; i < gridWidth/20; i++) {
-      for (int j = 0; j < gridHeight/20; j++) {
-        chunks[i][j] = new Chunk();
-      }
-    }
+    //chunks = new Chunk[gridWidth/20][gridHeight/20];
+    //for (int i = 0; i < gridWidth/20; i++) {
+    //  for (int j = 0; j < gridHeight/20; j++) {
+    //    chunks[i][j] = new Chunk();
+    //  }
+    //}
   }
 
   void display() {
-    for (int i = 0; i < gridWidth; i++) {
-      for (int j = 0; j < gridHeight; j++) {
-        grid[i][j].display();
+    if (frameCount % shutterSpeed == 0 && ants.size() > 1 && saveTimelapse) {
+      map.save(timeLapseID + "/" + (frameCount/shutterSpeed) + ".jpg");
+    }
+    float slice = (frameCount % shutterSpeed)/(shutterSpeed * 1.0);
+    int count = (int)(slice * map.pixels.length);
+    for (int i = (int)(slice * gridHeight); i < (int)(slice * gridHeight) + gridHeight/shutterSpeed; i++) {
+      for (int j = 0; j < gridWidth; j++) {
+        grid[j][i].display();
+        map.pixels[count] = grid[j][i].currColor;
+        count++;
       }
     }
-    for (int i = 0; i < gridWidth/20; i++) {
-      for (int j = 0; j < gridHeight/20; j++) {
-        chunks[i][j].clear();
-      }
+    map.updatePixels();
+    if (showFarm) {
+      pushMatrix();
+      scale(gridScale);
+      image(map, 0, 0);
+      popMatrix();
     }
+
+    //for (int i = 0; i < gridWidth/20; i++) {
+    //  for (int j = 0; j < gridHeight/20; j++) {
+    //    chunks[i][j].clear();
+    //  }
+    //}
   }
 
   void floodFill(int x, int y) {

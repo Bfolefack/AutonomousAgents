@@ -3,7 +3,8 @@ class Ant {
   float maxSpeed, maxForce, r;
   float index;
   float offset;
-  int exhaustionTimer;
+  boolean full;
+  int exhaustionTimer = 1;
   boolean arrived;
   String status = "seeking";
   Grid thisGrid;
@@ -33,23 +34,30 @@ class Ant {
     randy.setMag(r * 10);
     PVector p = getSights(grid, (int) r);
     if (p.mag() > 0)
-      addForce(p.mult(20));
+      addForce(p.mult(gridScale));
     else
       addForce(seek(PVector.add(randy, pos)).mult(2));
     addForce(avoidWalls(grid, 1).mult(500));
     //addForce(avoidNeighbors(grid));
     PVector avy = avoidWalls(grid, 3).mult(20);
-    addForce(avy);
-    avy.setMag(randy.mag()).div(2);
-    randy = PVector.add(randy, avy);
+    avy.setMag(randy.mag());
+    randy.add(avy.mult(abs(PVector.dot(randy.normalize(null), avy.normalize(null)))));
     vel.add(acc);
     vel.limit(maxSpeed);
     vel.mult(0.8);
     pos.add(vel);
     acc.set(0, 0);
     exhaustionTimer++;
-    if (exhaustionTimer > 1800) {
+    if (exhaustionTimer > exhaustTime * 3600) {
       status = "exhausted";
+    }
+    if (exhaustionTimer > exhaustTime * 3600 * 2) {
+      ants.remove(this);
+    }
+    if(mousePressed){
+      if (dist(pos.x, pos.y, truMouseX, truMouseY) <= r * 2 && mouseButton == RIGHT){
+        followerAnt = this;
+      }
     }
   }
 
@@ -68,7 +76,7 @@ class Ant {
     endShape(CLOSE);
     fill(255, 0, 0);
     popMatrix();
-    ellipse(pos.x + randy.x, pos.y + randy.y, r, r);
+    //ellipse(pos.x + randy.x, pos.y + randy.y, r, r);
   }
 
 
@@ -124,8 +132,8 @@ class Ant {
   }
 
   PVector avoidWalls(Grid grid, int range) {
-    int xPos = (int) (pos.x/20);
-    int yPos = (int) (pos.y/20);
+    int xPos = (int) (pos.x/gridScale);
+    int yPos = (int) (pos.y/gridScale);
     int count = 0;
     //grid.getCell(xPos, yPos).currColor = color(255, 0, 0);
     PVector sum = new PVector();
@@ -135,7 +143,7 @@ class Ant {
           Cell cel = grid.getCell(xPos + i, yPos + j);
           if (cel != null) {
             if (cel.filled) {
-              sum.add(gridAvoid(new PVector((xPos + i) * 20, (yPos + j) * 20)));
+              sum.add(gridAvoid(new PVector((xPos + i) * gridScale, (yPos + j) * gridScale)));
               count++;
             }
           }
@@ -149,37 +157,37 @@ class Ant {
     return sum.limit(maxForce);
   }
 
-  PVector avoidNeighbors(Grid grid) {
-    int xPos = (int) (pos.x/20);
-    int yPos = (int) (pos.y/20);
-    int xChunkPos = (int) (pos.x/20)/20;
-    int yChunkPos = (int) (pos.y/20)/20;
-    int count = 0;
-    //grid.getCell(xPos, yPos).currColor = color(255, 0, 0);
-    PVector sum = new PVector();
-    for (Ant a : grid.chunks[xChunkPos][yChunkPos].ants) {
-      if (a != this) {
-        if (PVector.dist(pos, a.pos) < r * 5) {
-          sum.add(avoid(a.pos));
-          count++;
-        }
-      }
-    }
-    if (count > 0)
-      sum.div(count);
-    else
-      sum = new PVector(0, 0);
-    return sum.limit(maxForce);
-  }
+  //PVector avoidNeighbors(Grid grid) {
+  //  int xPos = (int) (pos.x/gridScale);
+  //  int yPos = (int) (pos.y/gridScale);
+  //  int xChunkPos = (int) (pos.x/gridScale)/20;
+  //  int yChunkPos = (int) (pos.y/gridScale)/20;
+  //  int count = 0;
+  //  //grid.getCell(xPos, yPos).currColor = color(255, 0, 0);
+  //  PVector sum = new PVector();
+  //  for (Ant a : grid.chunks[xChunkPos][yChunkPos].ants) {
+  //    if (a != this) {
+  //      if (PVector.dist(pos, a.pos) < r * 5) {
+  //        sum.add(avoid(a.pos));
+  //        count++;
+  //      }
+  //    }
+  //  }
+  //  if (count > 0)
+  //    sum.div(count);
+  //  else
+  //    sum = new PVector(0, 0);
+  //  return sum.limit(maxForce);
+  //}
 
   void layPheremones(Grid grid) {
-    int xPos = (int) (pos.x/20);
-    int yPos = (int) (pos.y/20);
+    int xPos = (int) (pos.x/gridScale);
+    int yPos = (int) (pos.y/gridScale);
     Cell cel = grid.getCell(xPos, yPos);
     if (status.equals("seeking")) {
-      cel.homePheremone += 0.2/(exhaustionTimer/18 + 1);
+      cel.homePheremone += 0.5/(exhaustionTimer/(exhaustTime * 36));
     } else if (status.equals("returning")) {
-      cel.foodPheremone += 0.05;
+      cel.foodPheremone += 0.5/(exhaustionTimer/(exhaustTime * 36));
     }
     if (cel.filled) {
       ants.remove(this);
@@ -187,13 +195,13 @@ class Ant {
   }
 
   PVector seek(Cell cel) {
-    PVector celPos = new PVector((cel.xPos * 20 + 10) - pos.x, (cel.yPos * 20 + 10) - pos.y);
+    PVector celPos = new PVector((cel.xPos * gridScale + gridScale/2) - pos.x, (cel.yPos * gridScale + gridScale/2) - pos.y);
     return celPos;
   }
 
   PVector getSights(Grid grid, int radius) {
-    int xPos = (int) (pos.x/20);
-    int yPos = (int) (pos.y/20);
+    int xPos = (int) (pos.x/gridScale);
+    int yPos = (int) (pos.y/gridScale);
     int count = 1;
     float nearestTargetDist = Integer.MAX_VALUE;
     PVector pheremoneTotal = new PVector();
@@ -212,8 +220,10 @@ class Ant {
                     nearestTarget = cel;
                   }
                 }
-                pheremoneTotal.add(seek(cel).mult(cel.foodPheremone));
-                count++;
+                if (cel.foodPheremone > 0) {
+                  pheremoneTotal.add(seek(cel).mult(cel.foodPheremone * 2));
+                  count++;
+                }
               } else if (status.equals("returning") || status.equals("exhausted")) {
                 if (cel.nest) {
                   if (dist(xPos, yPos, xPos + i, yPos + j) < nearestTargetDist) {
@@ -221,8 +231,10 @@ class Ant {
                     nearestTarget = cel;
                   }
                 }
-                pheremoneTotal.add(seek(cel).mult(cel.homePheremone));
-                count++;
+                if (cel.homePheremone > 0) {
+                  pheremoneTotal.add(seek(cel).mult(cel.homePheremone * 2));
+                  count++;
+                }
               }
             }
           }
@@ -235,12 +247,16 @@ class Ant {
         if (status.equals("seeking")) {
           status = "returning";
           nearestTarget.food -= 0.2;
+          full = true;
           randy = PVector.mult(vel, -1);
-          exhaustionTimer = 0;
-        } else if (status.equals("returning") || status.equals("exhausted")) {
+          exhaustionTimer = 1;
+        } else if (status.equals("returning")) {
           status = "seeking";
           randy = PVector.mult(vel, -1);
-          exhaustionTimer = 0;
+          exhaustionTimer = 1;
+          if (full) {
+            nest.brood += 0.1;
+          }
         }
       }
       return seek(nearestTarget);
@@ -256,16 +272,16 @@ class Ant {
     acc.add(force);
   }
 
-  void setChunk(Grid grid) {
-    int xPos = (int) (pos.x/20)/20;
-    int yPos = (int) (pos.y/20)/20;
-    try {
-      grid.chunks[xPos][yPos].ants.add(this);
-    } 
-    catch (Exception e) {
-      ants.remove(this);
-    }
-  }
+  //void setChunk(Grid grid) {
+  //  int xPos = (int) (pos.x/gridScale)/20;
+  //  int yPos = (int) (pos.y/gridScale)/20;
+  //  try {
+  //    grid.chunks[xPos][yPos].ants.add(this);
+  //  } 
+  //  catch (Exception e) {
+  //    ants.remove(this);
+  //  }
+  //}
 
   void seek(float _t1, float _t2) {
     PVector target = new PVector(_t1, _t2);
