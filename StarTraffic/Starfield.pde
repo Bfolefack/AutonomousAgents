@@ -9,10 +9,13 @@ class Starfield {
     fleet = new ArrayList<Ship>();
   }
 
-  void display() {
+  void update() {
+    if(mousePressed && mouseButton == RIGHT){
+      focusStar = null;
+    }
     for (Star s : field) {
       s.update(this);
-      s.display(this);
+      s.display();
     }
     for (Ship s : fleet) {
       s.update();
@@ -23,9 +26,10 @@ class Starfield {
         fleet.remove(i);
       }
     }
-    if (random(1) < 0.02) {
+    if (random(1) < 0.1) {
       fleet.add(new Ship(field.get((int) random(field.size())), field.get((int) random(field.size()))));
     }
+    updateColors();
   }
 
   void updateColors() {

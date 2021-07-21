@@ -5,19 +5,20 @@ class Ship {
   int state;
   int timer;
   int queuePos;
-  int prevStarQueueSize = 0;
+  int age;
+  color col;
   boolean done;
 
   PVector pos = new PVector();
-  Starfield field;
   Ship(Star s, Star d) {
     star = s;
-    star.queueSize++;
+    star.queue.add(this);
     destination = d;
+    col = color(random(255), random(255), random(225));
   }
   void update() {
-    if (star == destination) {
-      star.queueSize--;
+    if (star == destination || age > 30) {
+      star.queue.remove(this);
       done = true;
     }
     if (state == 0) {
@@ -34,15 +35,10 @@ class Ship {
               nextStop = temp;
             }
           }
-          star.queueSize--;
+          star.queue.remove(this);
           timer = 0;
           state = 1;
         }
-      } else {
-        if (prevStarQueueSize > star.queueSize) {
-          queuePos--;
-        }
-        prevStarQueueSize = star.queueSize;
       }
     } else if (state == 1) {
       timer++;
@@ -52,16 +48,17 @@ class Ship {
         state = 0;
         timer = 0;
         star = nextStop;
-        queuePos = star.queueSize;
-        star.queueSize++;
+        star.queue.add(this);
+        age++;
+        queuePos = star.queue.indexOf(this);
         nextStop = null;
       }
     }
   }
 
   void display() {
-    fill(0, 0, 255);
+    fill(col);
     ellipse(pos.x, pos.y, 5, 5);
-    text(queuePos, pos.x - 15, pos.y);
+    //text(queuePos, pos.x - 15, pos.y);
   }
 }

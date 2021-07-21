@@ -3,17 +3,20 @@ class Star {
   ArrayList<Link> links;
   ArrayList<Link> pointAs;
   ArrayList<Pair<Star, Integer>> starDists;
+  ArrayList<Ship> queue;
   PVector pos;
   int greatestStarDist;
-  int queueSize;
+  int updateOffset;
   color col;
   Star(float x, float y) {
     pos = new PVector();
     pos.x = x;
     pos.y = y;
+    updateOffset = (int) random(10);
     col = color(255);
     links = new ArrayList<Link>();
     pointAs = new ArrayList<Link>();
+    queue = new ArrayList<Ship>();
   }
 
   void link (ArrayList<Star> stars) {
@@ -69,13 +72,13 @@ class Star {
     greatestStarDist = 0;
     for (Link l : links) {
       Star star = l.getOtherStar(this);
-      starDists.add(createPair(star, 1));
-      star.measureStarDists(starDists, this, 1);
+      starDists.add(createPair(star, 1 + queue.size()));
+      star.measureStarDists(starDists, this, 1 + queue.size());
     }
   }
 
   void measureStarDists(ArrayList<Pair<Star, Integer>> stars, Star s, int runningTotal) {
-    runningTotal += 1;
+    runningTotal += 1 + queue.size();
     for (Link l : links) {
       Star star = l.getOtherStar(this);
       int num = s.getStarDist(star);
@@ -93,7 +96,7 @@ class Star {
     return new Pair<Star, Integer> (s, i);
   }
 
-  void display(Starfield sf) {
+  void display() {
     noStroke();
     fill(col);
     ellipse(pos.x, pos.y, 10, 10);
@@ -104,27 +107,41 @@ class Star {
         line(pos.x, pos.y, other.pos.x, other.pos.y);
       }
     }
-    text(queueSize, pos.x, pos.y + 15);
+    //text(queue.size(), pos.x, pos.y + 15);
   }
 
   void update(Starfield sf) {
-    measureStarDists();
-    if (mousePressed && dist(truMouseX, truMouseY, pos.x, pos.y) < 15) {
+    if ((frameCount + updateOffset) % 10 == 0)
+      measureStarDists();
+    if (sf.focusStar == this) {
       for (Pair <Star, Integer> si : starDists) {
         if (si.getValue() > greatestStarDist) {
           greatestStarDist = si.getValue();
         }
       }
-      sf.focusStar = this;
-      sf.updateColors();
-      println(greatestStarDist);
+    }
+    if (mousePressed && dist(truMouseX, truMouseY, pos.x, pos.y) < 15) {
+      if (mouseButton == LEFT) {
+        for (Pair <Star, Integer> si : starDists) {
+          if (si.getValue() > greatestStarDist) {
+            greatestStarDist = si.getValue();
+          }
+        }
+        sf.focusStar = this;
+        sf.updateColors();
+      }
+    }
+    for (int i = 0; i < queue.size(); i++) {
+      queue.get(i).queuePos = i;
     }
   }
-  
-  void updateStarColor(Starfield sf){
-    if (sf.focusStar != null && mousePressed) {
+
+  void updateStarColor(Starfield sf) {
+    if (sf.focusStar != null) {
       float num = sf.focusStar.getStarDist(this)/ (float) sf.focusStar.greatestStarDist;
       col = color(255, 255 - (num * 255), 255 - (num * 255));
+    } else {
+      col = color(255);
     }
   }
 }

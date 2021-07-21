@@ -42,7 +42,7 @@ void draw() {
   text(frameRate, 0, 10);
   zoomer.mousePan();
   zoomer.pushZoom();
-  starfield.display();
+  starfield.update();
   zoomer.popZoom();
 }
 
