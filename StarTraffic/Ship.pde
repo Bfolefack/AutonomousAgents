@@ -17,15 +17,16 @@ class Ship {
     col = color(random(255), random(255), random(225));
   }
   void update() {
-    if (star == destination || age > 30) {
-      star.queue.remove(this);
-      done = true;
-    }
     if (state == 0) {
       pos = PVector.add(star.pos, new PVector(0, -queuePos * 10));
       if (queuePos == 0) {
         timer++;
         if (timer > 20) {
+          if (star == destination || age > 30) {
+            star.queue.remove(this);
+            done = true;
+            return;
+          }
           int min = Integer.MAX_VALUE;
           for (Link l : star.links) {
             Star temp = l.getOtherStar(star);
@@ -58,6 +59,7 @@ class Ship {
 
   void display() {
     fill(col);
+    noStroke();
     ellipse(pos.x, pos.y, 5, 5);
     //text(queuePos, pos.x - 15, pos.y);
   }

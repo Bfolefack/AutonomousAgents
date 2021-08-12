@@ -72,12 +72,15 @@ class Star {
     greatestStarDist = 0;
     for (Link l : links) {
       Star star = l.getOtherStar(this);
+      //starDists.add(createPair(star, 1));
       starDists.add(createPair(star, 1 + queue.size()));
+      //star.measureStarDists(starDists, this, 1);
       star.measureStarDists(starDists, this, 1 + queue.size());
     }
   }
 
   void measureStarDists(ArrayList<Pair<Star, Integer>> stars, Star s, int runningTotal) {
+    //runningTotal += 1;
     runningTotal += 1 + queue.size();
     for (Link l : links) {
       Star star = l.getOtherStar(this);
