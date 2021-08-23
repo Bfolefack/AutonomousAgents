@@ -48,6 +48,11 @@ class Grid {
         }
       }
     }
+    for (int i = 0; i < gridWidth; i++) {
+      for (int j = 0; j < gridHeight; j++) {
+        grid[i][j].update();
+      }
+    }
     //chunks = new Chunk[gridWidth/20][gridHeight/20];
     //for (int i = 0; i < gridWidth/20; i++) {
     //  for (int j = 0; j < gridHeight/20; j++) {
@@ -82,6 +87,16 @@ class Grid {
     //    chunks[i][j].clear();
     //  }
     //}
+  }
+  
+  void update(){
+    for (int i = 0; i < gridWidth; i++) {
+      for (int j = 0; j < gridHeight; j++) {
+        if(grid[i][j].active){
+          grid[i][j].update();
+        }
+      }
+    }
   }
 
   void floodFill(int x, int y) {

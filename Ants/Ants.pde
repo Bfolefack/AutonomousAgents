@@ -40,6 +40,7 @@ void draw() {
   zoomer.pushZoom();
   zoomer.mousePan();
   farm.display();
+  farm.update();
   //for (int i = ants.size() - 1; i >= 0; i--) {
   //  ants.get(i).setChunk(farm);
   //}

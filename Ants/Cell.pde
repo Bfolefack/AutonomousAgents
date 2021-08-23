@@ -1,5 +1,5 @@
 class Cell {
-  boolean filled, nest;
+  boolean filled, nest, active;
   int xPos;
   int yPos;
   float scale;
@@ -60,13 +60,15 @@ class Cell {
 
   void display() {
     //fill (currColor);
-    homePheremone *= 0.98;
-    foodPheremone *= 0.98;
+    //rect(xPos * scale, yPos * scale, scale, scale);
+  }
+  void update() {
+    homePheremone *= 0.999;
+    foodPheremone *= 0.999;
     if (homePheremone > 1)
       homePheremone = 1;
     if (foodPheremone > 1)
       foodPheremone = 1;
-    //rect(xPos * scale, yPos * scale, scale, scale);
     if (filled) {
       currColor = color(0);
       foodPheremone = 0;

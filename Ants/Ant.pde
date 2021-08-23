@@ -189,6 +189,7 @@ class Ant {
     } else if (status.equals("returning")) {
       cel.foodPheremone += 0.5/(exhaustionTimer/(exhaustTime * 36));
     }
+    cel.active = true;
     if (cel.filled) {
       ants.remove(this);
     }
@@ -210,6 +211,7 @@ class Ant {
       for (int j = (int)  -radius; j < radius + 1; j++) {
         Cell cel = grid.getCell(xPos + i, yPos + j);
         if (cel  != null) {
+          cel.active = true;
           if (dist(xPos, yPos, (xPos + i), (yPos + j)) < radius) {
             if (PVector.angleBetween(vel, new PVector(i, j)) < PI/3) {
               //cel.currColor = color(255, 0, 0);

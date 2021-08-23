@@ -11,6 +11,7 @@ class Nest {
         if (cel  != null) {
           if (dist(xPos, yPos, (xPos + i), (yPos + j)) < size) {
             cel.nest = true;
+            cel.active = true;
           }
         }
       }
