@@ -33,10 +33,11 @@ class Ant {
     randy.add(e);
     randy.setMag(r * 10);
     PVector p = getSights(grid, (int) r);
-    if (p.mag() > 0)
+    if (p.mag() > 0) {
       addForce(p.mult(gridScale));
-    else
+    } else {
       addForce(seek(PVector.add(randy, pos)).mult(2));
+    }
     addForce(avoidWalls(grid, 1).mult(500));
     //addForce(avoidNeighbors(grid));
     PVector avy = avoidWalls(grid, 3).mult(20);
@@ -54,8 +55,8 @@ class Ant {
     if (exhaustionTimer > exhaustTime * 3600 * 2) {
       ants.remove(this);
     }
-    if(mousePressed){
-      if (dist(pos.x, pos.y, truMouseX, truMouseY) <= r * 2 && mouseButton == RIGHT){
+    if (mousePressed) {
+      if (dist(pos.x, pos.y, truMouseX, truMouseY) <= r * 2 && mouseButton == RIGHT) {
         followerAnt = this;
       }
     }
@@ -184,10 +185,11 @@ class Ant {
     int xPos = (int) (pos.x/gridScale);
     int yPos = (int) (pos.y/gridScale);
     Cell cel = grid.getCell(xPos, yPos);
+    cel.active = true;
     if (status.equals("seeking")) {
-      cel.homePheremone += 0.5/(exhaustionTimer/(exhaustTime * 36));
+      cel.homePheremone += 0.2/(exhaustionTimer/(exhaustTime * 3600));
     } else if (status.equals("returning")) {
-      cel.foodPheremone += 0.5/(exhaustionTimer/(exhaustTime * 36));
+      cel.foodPheremone += 0.2/(exhaustionTimer/(exhaustTime * 3600));
     }
     cel.active = true;
     if (cel.filled) {
@@ -248,7 +250,9 @@ class Ant {
       if (nearestTargetDist < 2) {
         if (status.equals("seeking")) {
           status = "returning";
-          nearestTarget.food -= 0.2;
+          nearestTarget.food -= 0.5;
+          if (nearestTarget.foodHerePheremone < 1)
+            nearestTarget.foodHerePheremone += 0.5;
           full = true;
           randy = PVector.mult(vel, -1);
           exhaustionTimer = 1;
@@ -257,7 +261,7 @@ class Ant {
           randy = PVector.mult(vel, -1);
           exhaustionTimer = 1;
           if (full) {
-            nest.brood += 0.1;
+            nest.brood += 0.15;
           }
         }
       }

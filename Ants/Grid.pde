@@ -76,10 +76,7 @@ class Grid {
     }
     map.updatePixels();
     if (showFarm) {
-      pushMatrix();
-      scale(gridScale);
-      image(map, 0, 0);
-      popMatrix();
+      image(map, 0, 0, gridWidth * gridScale, gridHeight * gridScale);
     }
 
     //for (int i = 0; i < gridWidth/20; i++) {

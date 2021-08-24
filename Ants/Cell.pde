@@ -5,6 +5,7 @@ class Cell {
   float scale;
   float homePheremone;
   float foodPheremone;
+  float foodHerePheremone;
   float food;
   int cavernID;
   color currColor;
@@ -65,6 +66,9 @@ class Cell {
   void update() {
     homePheremone *= 0.999;
     foodPheremone *= 0.999;
+    if (homePheremone == 0 && foodPheremone == 0 && foodHerePheremone == 0) {
+      active = false;
+    }
     if (homePheremone > 1)
       homePheremone = 1;
     if (foodPheremone > 1)
@@ -74,7 +78,7 @@ class Cell {
       foodPheremone = 0;
       homePheremone = 0;
     } else {
-      currColor = color((255 - homePheremone * 255 + 255)/2, ((255 - homePheremone * 255) + (255 - foodPheremone * 255))/2, (255 + (255 - foodPheremone * 255))/2);
+      currColor = color((255 - homePheremone * 255 + 255)/2, ((255 - homePheremone * 255) + (255 - foodPheremone * 255))/2, (255 + (255 - foodPheremone * 255))/2 - (foodHerePheremone * 255));
       if (food > 0) {
         currColor = color(255 - food * 255, 255, 255 - food * 255);
       }
