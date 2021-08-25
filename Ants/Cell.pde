@@ -9,6 +9,7 @@ class Cell {
   float food;
   int cavernID;
   color currColor;
+  Ant ant;
   Cell(int x, int y, float s, boolean b) {
     xPos = x;
     yPos = y;
@@ -86,6 +87,10 @@ class Cell {
         currColor = color(200, 0, 255);
       }
     }
+    if(ant != null){
+      currColor = color(255, 0, 0);
+    }
+    ant = null;
   }
 
   void floodFill(Grid grid, ArrayList<Cell> cels, int id) {

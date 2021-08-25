@@ -3,6 +3,8 @@ class Ant {
   float maxSpeed, maxForce, r;
   float index;
   float offset;
+  int[] avgExhaust;
+  int avgExhaustOffset;
   boolean full;
   int exhaustionTimer = 1;
   boolean arrived;
@@ -19,6 +21,8 @@ class Ant {
     maxSpeed = _ms;
     maxForce = _mf;
     index = random(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    avgExhaust = new int[50];
+    avgExhaustOffset = 0;
     globalIndex++;
     r = 10;
     arrived = false;
@@ -49,7 +53,7 @@ class Ant {
     pos.add(vel);
     acc.set(0, 0);
     exhaustionTimer++;
-    if (exhaustionTimer > exhaustTime * 3600) {
+    if (exhaustionTimer > exhaustTime * 3600 || average(avgExhaust) > exhaustTime * 720) {
       status = "exhausted";
     }
     if (exhaustionTimer > exhaustTime * 3600 * 2) {
@@ -60,6 +64,15 @@ class Ant {
         followerAnt = this;
       }
     }
+  }
+
+  float average(int[] arr) {
+    float total = 0;
+    for (int i : arr) {
+      total += i;
+    }
+    total/=(float)arr.length;
+    return total;
   }
 
   void display() {
@@ -186,10 +199,15 @@ class Ant {
     int yPos = (int) (pos.y/gridScale);
     Cell cel = grid.getCell(xPos, yPos);
     cel.active = true;
+    cel.ant = this;
     if (status.equals("seeking")) {
       cel.homePheremone += 0.2/(exhaustionTimer/(exhaustTime * 3600));
     } else if (status.equals("returning")) {
       cel.foodPheremone += 0.2/(exhaustionTimer/(exhaustTime * 3600));
+    } else if (status.equals("returningDejected")) {
+      if (cel.foodPheremone > 0) {
+        cel.foodPheremone -= 0.2;
+      }
     }
     cel.active = true;
     if (cel.filled) {
@@ -206,6 +224,7 @@ class Ant {
     int xPos = (int) (pos.x/gridScale);
     int yPos = (int) (pos.y/gridScale);
     int count = 1;
+    boolean food = false;
     float nearestTargetDist = Integer.MAX_VALUE;
     PVector pheremoneTotal = new PVector();
     Cell nearestTarget = null;
@@ -213,22 +232,27 @@ class Ant {
       for (int j = (int)  -radius; j < radius + 1; j++) {
         Cell cel = grid.getCell(xPos + i, yPos + j);
         if (cel  != null) {
-          cel.active = true;
           if (dist(xPos, yPos, (xPos + i), (yPos + j)) < radius) {
+            cel.active = true;
             if (PVector.angleBetween(vel, new PVector(i, j)) < PI/3) {
               //cel.currColor = color(255, 0, 0);
               if (status.equals("seeking")) {
-                if (cel.food > 0) {
+                if (cel.food > 0 || cel.foodHerePheremone > 0) {
                   if (dist(xPos, yPos, xPos + i, yPos + j) < nearestTargetDist) {
-                    nearestTargetDist = dist(xPos, yPos, xPos + i, yPos + j);
-                    nearestTarget = cel;
+                    if (cel.food > 0 || !food) {
+                      if (cel.food > 0) {
+                        food = true;
+                      }
+                      nearestTargetDist = dist(xPos, yPos, xPos + i, yPos + j);
+                      nearestTarget = cel;
+                    }
                   }
                 }
                 if (cel.foodPheremone > 0) {
                   pheremoneTotal.add(seek(cel).mult(cel.foodPheremone * 2));
                   count++;
                 }
-              } else if (status.equals("returning") || status.equals("exhausted")) {
+              } else if (status.equals("returning") || status.equals("exhausted") || status.equals("returningDejected")) {
                 if (cel.nest) {
                   if (dist(xPos, yPos, xPos + i, yPos + j) < nearestTargetDist) {
                     nearestTargetDist = dist(xPos, yPos, xPos + i, yPos + j);
@@ -240,6 +264,12 @@ class Ant {
                   count++;
                 }
               }
+              if (cel.ant != null) {
+                avgExhaustOffset += 1;
+                if (avgExhaustOffset >= 50)
+                  avgExhaustOffset = 0;
+                avgExhaust[avgExhaustOffset] = cel.ant.exhaustionTimer;
+              }
             }
           }
         }
@@ -249,14 +279,18 @@ class Ant {
     if (nearestTarget != null) {
       if (nearestTargetDist < 2) {
         if (status.equals("seeking")) {
-          status = "returning";
-          nearestTarget.food -= 0.5;
-          if (nearestTarget.foodHerePheremone < 1)
-            nearestTarget.foodHerePheremone += 0.5;
-          full = true;
-          randy = PVector.mult(vel, -1);
-          exhaustionTimer = 1;
-        } else if (status.equals("returning")) {
+          if (food) {
+            status = "returning";
+            nearestTarget.food -= 0.5;
+            if (nearestTarget.foodHerePheremone < 1)
+              nearestTarget.foodHerePheremone += 0.5;
+            full = true;
+            randy = PVector.mult(vel, -1);
+          } else if (nearestTargetDist < 1) {
+            status = "returningDejected";
+            grid.getCell(xPos, yPos).foodHerePheremone = 0;
+          }
+        } else if (status.equals("returning")  || status.equals("exhausted") || status.equals("returningDejected")) {
           status = "seeking";
           randy = PVector.mult(vel, -1);
           exhaustionTimer = 1;
@@ -266,10 +300,9 @@ class Ant {
         }
       }
       return seek(nearestTarget);
-    } else {
-      if (pheremoneTotal.mag() > r) {
-        return pheremoneTotal;
-      }
+    }
+    if (pheremoneTotal.mag() > r) {
+      return pheremoneTotal;
     }
     return new PVector(0, 0);
   }
