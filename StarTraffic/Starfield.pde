@@ -26,7 +26,7 @@ class Starfield {
         fleet.remove(i);
       }
     }
-    if (random(1) < 0.1) {
+    if (random(1) < 0.2) {
       fleet.add(new Ship(field.get((int) random(field.size())), field.get((int) random(field.size()))));
     }
     updateColors();

@@ -23,7 +23,7 @@ class Dot {
 
   void generateArray() {
     for (int i = 0; i < path.length; i++) {
-      path[i] = PVector.fromAngle(random(360));
+      path[i] = PVector.fromAngle(random(TWO_PI));
     }
   }
 

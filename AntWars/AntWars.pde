@@ -11,38 +11,31 @@ int shutterSpeed = 20; //time in frames
 float exhaustTime = 2.5; //time in minutes
 boolean showAnts = true;
 boolean showFarm = true;
-boolean saveTimelapse = false;
+boolean saveTimelapse = true;
 Ant followerAnt;
 Grid farm;
 Nest nest;
 
 void settings() {
- //size(gridSize, gridSize);
- fullScreen(P2D);
+  size(gridSize, gridSize);
 }
 
 void setup() {
-  ((PGraphicsOpenGL)g).textureSampling(3);
   noiseDetail(4, 0.5);
   frameRate(144);
   if (seed == 0) {
     seed = (int)random(Integer.MIN_VALUE, Integer.MAX_VALUE);
   }
   ants = new ArrayList<Ant>();
-    randomSeed(seed);
-    noiseSeed(seed);
-    noStroke();
-    zoomer = new Zoom(1.0/gridScale); 
-  
+  randomSeed(seed);
+  noiseSeed(seed);
+  farm = new Grid(gridSize, gridSize, gridScale, 0.45, 0.025);
+  noStroke();
+  zoomer = new Zoom(1.0/gridScale);
 }
 
 
 void draw() {
-  if(frameCount == 1){
-     
-    farm = new Grid(gridSize, gridSize, gridScale, 0.45, 0.025);
-    
-  }
   background(155);
   zoomer.pushZoom();
   zoomer.mousePan();

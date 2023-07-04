@@ -14,7 +14,7 @@ ArrayList<Agent> agents;
 PVector[][] flowField;
 
 void setup () {
-  size(1300, 700);
+  fullScreen();
   gridScale = 50;
   gridWidth = 200;
   gridHeight= 200;
